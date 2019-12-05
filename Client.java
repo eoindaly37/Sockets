@@ -1,8 +1,5 @@
 import java.awt.image.ImageObserver;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.nio.Buffer;
 import java.util.Observable;
@@ -12,6 +9,11 @@ public class Client implements Observer {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    File dir;
+
+    public Client(File dir){
+        this.dir = dir;
+    }
 
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip,port);
