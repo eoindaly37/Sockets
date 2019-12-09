@@ -1,40 +1,52 @@
 import java.awt.image.ImageObserver;
 import java.io.*;
 import java.net.Socket;
-import java.nio.Buffer;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.ArrayList;
 
-public class Client implements Observer {
+public class Client{
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
-    File dir;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
-    public Client(File dir){
-        this.dir = dir;
-    }
 
-    public void startConnection(String ip, int port) throws IOException {
+    public void startConnection(String ip, int port) throws IOException, ClassNotFoundException {
         clientSocket = new Socket(ip,port);
-        out = new PrintWriter(clientSocket.getOutputStream(),true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    }
+        System.out.println("Client connected");
+        in = new ObjectInputStream(clientSocket.getInputStream());
 
-    public String sendMessage(String msg) throws IOException {
-        out.println(msg);
-        String resp = in.readLine();
-        return resp;
-    }
+        ArrayList<SuperVillain> villains = (ArrayList<SuperVillain>)in.readObject();
+        System.out.println(villains.size());
 
+        ArrayList<SuperHero> heroes = new ArrayList<>();
+        StrongVillain strongVillain = new StrongVillain();
+        FlyVillain flyVillain = new FlyVillain();
+        for(int i=0; i<villains.size(); i++){
+            SuperVillain sv = villains.get(i);
+            if (sv==null){
+                //do nothing
+            }
+            else if(sv.getClass().equals(flyVillain.getClass())){
+                FlyHero fh = new FlyHero();
+                heroes.add(fh);
+                System.out.println("fly hero added");
+            }
+            else{
+                StrongHero sh = new StrongHero();
+                heroes.add(sh);
+                System.out.println("strong hero added");
+            }
+
+        }
+        out = new ObjectOutputStream(clientSocket.getOutputStream());
+        out.writeObject(heroes);
+    }
     public void stopConnection() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
     }
-
-    @Override
-    public void update(Observable o, Object arg) {
-
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Client client = new Client();
+        client.startConnection("127.0.0.1",5555);
     }
 }
